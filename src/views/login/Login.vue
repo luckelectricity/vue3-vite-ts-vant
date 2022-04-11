@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { ref } from "vue";
-const username = ref<string>("");
+import { Toast } from "vant";
+import { LOGIN } from "@/http/api";
+const email = ref<string>("");
 const password = ref<string>("");
 
 const onSubmit = (values: object) => {
-  console.log("submit", values);
+  LOGIN(values).then((res: any) => {
+    const { code, data, msg } = res;
+    if (code === 200) {
+      localStorage && localStorage.setItem("token", data.token);
+      // 跳转到首页
+    } else {
+      // 提示错误信息
+      Toast(msg);
+    }
+  });
 };
 
 const onClickLeft = () => {
@@ -24,8 +35,8 @@ const onClickLeft = () => {
       <van-form @submit="onSubmit">
         <van-cell-group inset>
           <van-field
-            v-model="username"
-            name="用户名"
+            v-model="email"
+            name="email"
             label="用户名"
             placeholder="用户名"
             :rules="[{ required: true, message: '请填写用户名' }]"
@@ -33,7 +44,7 @@ const onClickLeft = () => {
           <van-field
             v-model="password"
             type="password"
-            name="密码"
+            name="password"
             label="密码"
             placeholder="密码"
             :rules="[{ required: true, message: '请填写密码' }]"
